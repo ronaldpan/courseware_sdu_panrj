@@ -1,0 +1,169 @@
+﻿<!DOCTYPE>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<meta content="charset=UTF-8"/>
+<title>samples</title>
+<!--STYLESHEET-->
+<link type="text/css" rel="stylesheet" href="stylesheet/3dhop.css"/>  
+<!--SPIDERGL-->
+<script type="text/javascript" src="js/spidergl.js"></script>
+<!--JQUERY-->
+<script type="text/javascript" src="js/jquery.js"></script>
+<!--PRESENTER-->
+<script type="text/javascript" src="js/presenter.js"></script>
+<!--3D MODELS LOADING AND RENDERING-->
+<script type="text/javascript" src="js/nexus.js"></script>
+<script type="text/javascript" src="js/ply.js"></script>
+<!--TRACKBALLS-->
+<script type="text/javascript" src="js/trackball_sphere.js"></script>
+<script type="text/javascript" src="js/trackball_turntable.js"></script>
+<script type="text/javascript" src="js/trackball_turntable_pan.js"></script>
+<script type="text/javascript" src="js/trackball_pantilt.js"></script>
+<!--UTILITY-->
+<script type="text/javascript" src="js/init.js"></script>
+</head>
+<body>
+<div id="3dhop" class="tdhop" onmousedown="if (event.preventDefault) event.preventDefault()">
+<div id="tdhlg"></div>
+ <div id="toolbar">
+  <img id="home"       title="重置"                  src="skins/dark/home.png"   /><br/>
+  <img id="zoomin"     title="放大"               src="skins/dark/zoomin.png" /><br/>
+  <img id="zoomout"    title="缩小"              src="skins/dark/zoomout.png"/><br/>
+ <!--
+  <img id="light_on"   title="关闭光源管理" src="skins/dark/light_on.png" style="position:absolute; visibility:hidden;"/>
+  <img id="light"      title="开启光源管理"  src="skins/dark/light.png"/><br/>
+  <img id="hotspot_on" title="隐藏热点"         src="skins/dark/pin_on.png"   style="position:absolute; visibility:hidden;"/>
+  <img id="hotspot"    title="显示热点"         src="skins/dark/pin.png"    /><br/>
+ --> 
+  <img id="full_on"    title="退出全屏"      src="skins/dark/full_on.png" style="position:absolute; visibility:hidden;"/>
+  <img id="full"       title="开启全屏"           src="skins/dark/full.png"   /><br/>
+  <img id="measure_on" title="关闭测量工具"  src="skins/dark/measure_on.png" style="position:absolute; visibility:hidden;"/>
+  <img id="measure"    title="开启测量工具"   src="skins/dark/measure.png"/><br/>
+  <img id="pick_on"    title="关闭空间点选取模式"src="skins/dark/pick_on.png" style="position:absolute; visibility:hidden;"/>
+  <img id="pick"       title="开启空间点选取模式" src="skins/dark/pick.png"/><br/>
+  <img id="sections_on" title="关闭平面截取工具" src="skins/dark/sections_on.png" style="position:absolute; visibility:hidden;"/>
+  <img id="sections"    title="开启平面截取工具"  src="skins/dark/sections.png" /><br/>
+  <img id="ortho"    title="正交"  src="skins/dark/ortho.png" /><br/>
+  <img id="perspective"    title="透视"  src="skins/dark/perspective.png" /><br/>
+  <img id="color_on"    title="模型颜色"            src="skins/dark/color_on.png" style="position:absolute; visibility:hidden;"/>
+ <!-- 
+<img id="color"       title="单色"            src="skins/dark/color.png"/><br/> 
+ -->
+ </div>
+ <div id="measure-box" class="output-box">测量长度<hr/><span id="measure-output" class="output-text" onmousedown="event.stopPropagation()">0.0</span></div>
+ <canvas id="draw-canvas" style="background:white"/>
+</div> 
+<div id="pickpoint-box" class="output-box">XYZ轴 选取点<hr/><span id="pickpoint-output" class="output-text" onmousedown="event.stopPropagation()">[ 0 , 0 , 0 ]</span></div>
+<div id="sections-box" class="output-box">
+  <table class="output-table" onmousedown="event.stopPropagation()">
+	<tr><td>平面</td><td>位置</td><td>反转</td></tr>
+	<tr><td><hr/></td><td><hr/></td><td><hr/></td></tr>
+	<tr>
+		<td><img   id="xplane_on"    title="关闭X轴截取" src="skins/icons/sectionX_on.png" onclick="sectionxSwitch()" style="position:absolute; visibility:hidden; border:1px inset;"/>
+			<img   id="xplane"       title="开启X轴截面"  src="skins/icons/sectionX.png"  onclick="sectionxSwitch()"/><br/></td>
+		<td><input id="xplaneSlider" class="output-input"  type="range"    title="移动X轴截面位置"/></td> 
+		<td><input id="xplaneFlip"   class="output-input"  type="checkbox" title="反转X轴截面朝向"/></td></tr>
+	<tr>
+		<td><img   id="yplane_on"    title="关闭Y轴截取" src="skins/icons/sectionY_on.png" onclick="sectionySwitch()" style="position:absolute; visibility:hidden; border:1px inset;"/>
+			<img   id="yplane"       title="开启Y轴截面"  src="skins/icons/sectionY.png"  onclick="sectionySwitch()"/><br/></td>
+		<td><input id="yplaneSlider" class="output-input"  type="range"    title="移动Y轴截面位置"/></td> 
+		<td><input id="yplaneFlip"   class="output-input"  type="checkbox" title="反转Y轴截面朝向"/></td></tr>
+	<tr>
+		<td><img   id="zplane_on"    title="关闭Z轴截取" src="skins/icons/sectionZ_on.png" onclick="sectionzSwitch()" style="position:absolute; visibility:hidden; border:1px inset;"/>
+			<img   id="zplane"       title="开启Z轴截面"  src="skins/icons/sectionZ.png"  onclick="sectionzSwitch()"/><br/></td>
+		<td><input id="zplaneSlider" class="output-input"  type="range"    title="移动Z轴截面位置"/></td> 
+		<td><input id="zplaneFlip"   class="output-input"  type="checkbox" title="反转Y轴截面朝向"/></td></tr></table>
+  <table class="output-table" onmousedown="event.stopPropagation()" style="text-align:right;">
+	<tr>
+	 <td>显示平面<input id="showPlane" class="output-input" type="checkbox" title="显示平面"/></td>
+	 <td>显示边缘线<input  id="showBorder" class="output-input" type="checkbox" title="显示边缘线"/></td></tr></table>
+ </div>
+</body>
+
+<script type="text/javascript">
+var presenter = null;
+
+function setup3dhop() { 
+	presenter = new Presenter("draw-canvas");
+
+	presenter.setScene({
+		meshes: {
+			"Gargoyle" : { url: "models/multires/39828.nxs" },
+		},
+		modelInstances : {
+			"Gargo" : {
+				mesh : "Gargoyle"
+			},
+		},
+		trackball: {
+			type : SphereTrackball,
+			trackOptions : {
+				startDistance: 3.5,
+				minMaxDist: [0.5, 6.0]
+			}
+		},
+		config : {
+			showClippingPlanes  : true,
+			showClippingBorder  : true,
+			clippingBorderSize  : 0.5,
+			clippingBorderColor : [0.0, 1.0, 1.0]
+		}
+	});
+
+	presenter.setSpotVisibility(HOP_ALL, false, true);
+
+	presenter._onPickedSpot = onPickedSpot;
+	//presenter._onPickedInstance = onPickedInstance;
+	
+	presenter._onEndMeasurement = onEndMeasure;
+	presenter._onEndPickingPoint = onEndPick;
+}
+
+function actionsToolbar(action) {
+	if(action=='home') presenter.resetTrackball(); 
+	else if(action=='zoomin') presenter.zoomIn();
+	else if(action=='zoomout') presenter.zoomOut(); 
+	else if(action=='light' || action=='light_on') { presenter.enableLightTrackball(!presenter.isLightTrackballEnabled()); lightSwitch(); } 
+	else if(action=='hotspot'|| action=='hotspot_on') { presenter.toggleSpotVisibility(HOP_ALL, true); presenter.enableOnHover(!presenter.isOnHoverEnabled()); hotspotSwitch(); }
+	else if(action=='full'  || action=='full_on') fullscreenSwitch(); 
+	else if(action=='measure' || action=='measure_on') { presenter.enableMeasurementTool(!presenter.isMeasurementToolEnabled()); measureSwitch(); } 
+	else if(action=='pick' || action=='pick_on') { presenter.enablePickpointMode(!presenter.isPickpointModeEnabled()); pickpointSwitch(); }
+	else if(action=='sections' || action=='sections_on') { sectiontoolReset(); sectiontoolSwitch(); } 
+	else if(action=='ortho') {  presenter.setCameraOrthographic(); } 
+	else if(action=='perspective') {  presenter.setCameraPerspective(); } 
+	else if(action=='color' || action=='color_on') { presenter.toggleInstanceSolidColor(HOP_ALL, true); colorSwitch(); }	
+}
+
+function onPickedSpot(id) {
+  switch(id) {
+   }
+}
+
+function onPickedInstance(id) {
+  switch(id) {
+     case 'Gargo' : alert("Gargoyle Model Clicked "); break;
+  }
+}
+function onEndMeasure(measure) {
+	var decimalClipper = 100; // 10 = 1 decimal, 100 = 2 decimals, 1000 = 3 decimals
+	$('#measure-output').html(Math.round(measure*decimalClipper)/decimalClipper);
+}
+function onEndPick(point) {
+	var decimalClipper = 100; // 10 = 1 decimal, 100 = 2 decimals, 1000 = 3 decimals
+	var x = Math.round(point[0]*decimalClipper)/decimalClipper;
+	var y = Math.round(point[1]*decimalClipper)/decimalClipper;
+	var z = Math.round(point[2]*decimalClipper)/decimalClipper;
+    $('#pickpoint-output').html("[ "+x+" , "+y+" , "+z+" ]");
+}
+
+
+$(document).ready(function(){
+	init3dhop();
+
+	setup3dhop();
+	
+	sectiontoolInit();
+});
+</script>
+
+</html>
